@@ -6,7 +6,7 @@
 
 namespace sylar{
 Logger::Logger(const std::string& name):m_name(name){
-
+	m_formatter.reset(new LogFormatter("%d [%p] <%f , %l> %m %n"));
 }
 
 const char* LogLevel::toString(LogLevel::Level level){
@@ -120,18 +120,30 @@ class StringFormatItem : public LogFormatter::FormatItem{
 
 		StringFormatItem(const std::string& str):m_string(str){}
 		void format(std::ostream &os,  Logger::ptr logger, LogLevel::Level level,  LogEvent::ptr event) override{
-			os << event->getLine();	
+			os << m_string;	
 		}
 	private:
 		std::string m_string;
 };
 
 
+LogEvent::LogEvent(const char* file, int32_t line, uint32_t elapse, uint32_t threadId, uint32_t FiberId,\
+		uint64_t _time, std::string content){
 
+			m_file = file;
+			m_line = line;
+			m_elapse = elapse;
+			m_threadId = threadId;
+			m_fiberId = FiberId;
+			m_time = _time;
+			m_ss << content;
+		}
 
 
 void Logger::addAppender(LogAppender::ptr appender){
-
+	if(!appender->getFormatter()){
+		appender->setFormatter(m_formatter);
+	}
 	m_appenders.push_back(appender);
  
 }
@@ -188,15 +200,19 @@ void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level,
 
 void StdoutLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
 	if(level >= m_level){
-		std::cout << m_formatter->format(logger,level,event);
+		std::string st = m_formatter->format(logger,level,event);
+		std::cout << st << "------" << std::endl;
 	}
 }
 
 LogFormatter::LogFormatter(const std::string& pattern):m_pattern(pattern){
+	
+	init();
 
 }
 
 std::string LogFormatter::format(Logger::ptr logger, LogLevel::Level level , LogEvent::ptr event){
+	// init();
 	std::stringstream ss;
 	for(auto& i : m_items){
 		i->format(ss, logger, level, event);
@@ -232,7 +248,7 @@ void LogFormatter::init(){
 		std::string fmt;
 
 		while(n < m_pattern.size()){
-			if(isspace(m_pattern[n])) {
+			if(!isalpha(m_pattern[n]) && m_pattern[n]!='{' && m_pattern[n]!='}') {
 				break;
 			}
 			
@@ -253,27 +269,31 @@ void LogFormatter::init(){
 					break;
 				}
 			}
+			++n;
 		}
 
 		if(fmt_status == 0){
 			if(!nstr.empty()){
 				vec.push_back(std::make_tuple(nstr, "", 0));
+				nstr.clear();
 			}
 
 			str = m_pattern.substr(i+1, n-i-1);
 			vec.push_back(std::make_tuple(str, fmt, 1));
 
-			i=n;
+			i=n-1;
 		}else if(fmt_status == 1){
 			std::cout << "pattern phase error: " << m_pattern << "-" << m_pattern.substr(i) << std::endl;
 		       	vec.push_back(std::make_tuple("<<pattern error>>", fmt, 0));	
 		}else if(fmt_status == 2){
 			if(!nstr.empty()){
 				vec.push_back(std::make_tuple(nstr, "", 0));
+				nstr.clear();
 			}
 			vec.push_back(std::make_tuple(str, fmt, 1));
-			i=n;
+			i=n-1;
 		}
+		// nstr.clear();
 	}
 	if(!nstr.empty()){
 		vec.push_back(std::make_tuple(nstr, "", 0));
@@ -302,7 +322,7 @@ void LogFormatter::init(){
 		XX(d, DateTimeFormatItem),	
 		XX(f, FilenameFormatItem),	
 		XX(l, LineFormatItem)
-		
+		//"%d [%p] %f %l %m %n"
 #undef XX
 	};
 
@@ -310,17 +330,17 @@ void LogFormatter::init(){
 		if(std::get<2>(i) == 0){
 			m_items.push_back(FormatItem::ptr(new StringFormatItem(std::get<0>(i))));
 		}else{
-			auto it = s_format_items.find(std::get<1>(i));
+			auto it = s_format_items.find(std::get<0>(i));
 			if(it == s_format_items.end()){
 				m_items.push_back(FormatItem::ptr(new StringFormatItem("<< Error_format %" + std::get<1>(i) + ">>")));
 
 			}
 			else{
-				m_items.push_back(FormatItem::ptr(it->second(std::get<1>(i))));
+				m_items.push_back(FormatItem::ptr(it->second(std::get<0>(i))));
 			}
 		}
 
-		std::cout << std::get<0>(i) << "-" << std::get<1>(i) << "-" << std::get<2>(i) <<std::endl;
+		std::cout << std::get<0>(i) << " - " << std::get<1>(i) << " - " << std::get<2>(i) <<std::endl;
 	
 	}
 }
