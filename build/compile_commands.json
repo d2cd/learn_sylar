@@ -8,5 +8,10 @@
   "directory": "/home/ffy/sylar/build",
   "command": "/usr/bin/g++  -Dsylar_EXPORTS -I/home/ffy/sylar/sylar   -rdynamic -O0 -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -g -fPIC   -o CMakeFiles/sylar.dir/sylar/log.cc.o -c /home/ffy/sylar/sylar/log.cc",
   "file": "/home/ffy/sylar/sylar/log.cc"
+},
+{
+  "directory": "/home/ffy/sylar/build",
+  "command": "/usr/bin/g++  -Dsylar_EXPORTS -I/home/ffy/sylar/sylar   -rdynamic -O0 -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -g -fPIC   -o CMakeFiles/sylar.dir/sylar/util.cc.o -c /home/ffy/sylar/sylar/util.cc",
+  "file": "/home/ffy/sylar/sylar/util.cc"
 }
 ]

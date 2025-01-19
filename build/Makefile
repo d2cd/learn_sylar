@@ -193,6 +193,33 @@ sylar/tests/test.cc.s:
 	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/sylar/tests/test.cc.s
 .PHONY : sylar/tests/test.cc.s
 
+sylar/util.o: sylar/util.cc.o
+
+.PHONY : sylar/util.o
+
+# target to build an object file
+sylar/util.cc.o:
+	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/sylar/util.cc.o
+.PHONY : sylar/util.cc.o
+
+sylar/util.i: sylar/util.cc.i
+
+.PHONY : sylar/util.i
+
+# target to preprocess a source file
+sylar/util.cc.i:
+	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/sylar/util.cc.i
+.PHONY : sylar/util.cc.i
+
+sylar/util.s: sylar/util.cc.s
+
+.PHONY : sylar/util.s
+
+# target to generate assembly for a file
+sylar/util.cc.s:
+	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/sylar/util.cc.s
+.PHONY : sylar/util.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -209,6 +236,9 @@ help:
 	@echo "... sylar/tests/test.o"
 	@echo "... sylar/tests/test.i"
 	@echo "... sylar/tests/test.s"
+	@echo "... sylar/util.o"
+	@echo "... sylar/util.i"
+	@echo "... sylar/util.s"
 .PHONY : help
 
 

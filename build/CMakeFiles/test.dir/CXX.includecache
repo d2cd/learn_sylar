@@ -23,10 +23,34 @@ vector
 -
 tuple
 -
+map
+-
+singleton.h
+../sylar/singleton.h
+stdarg.h
+-
+
+../sylar/singleton.h
+
+../sylar/util.h
+pthread.h
+-
+sys/types.h
+-
+sys/syscall.h
+-
+unistd.h
+-
+stdint.h
+-
 
 /home/ffy/sylar/sylar/tests/test.cc
 iostream
 -
+thread
+-
 log.h
 /home/ffy/sylar/sylar/tests/log.h
+util.h
+/home/ffy/sylar/sylar/tests/util.h
 

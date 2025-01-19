@@ -1,12 +1,30 @@
 #include "log.h"
+#include <stdint.h>
+#include <ctime>
 #include <map>
 #include <functional>
 #include <iostream>
 
 
 namespace sylar{
+logEventWrap::logEventWrap(std::shared_ptr<LogEvent> event)\
+	:m_event(event){}
+logEventWrap::~logEventWrap(){
+	if(m_event){
+		m_event->getLogger()->log(m_event->getLevel(), m_event);
+	}
+}
+std::stringstream& logEventWrap::getSS(){
+	std::cout << "here" << std::endl;
+	return m_event->getSS();
+}
+LogEvent::ptr logEventWrap::getEvent(){
+	return m_event;
+}
+
 Logger::Logger(const std::string& name):m_name(name){
-	m_formatter.reset(new LogFormatter("%d [%p] <%f , %l> %m %n"));
+	m_level = LogLevel::Level::UNKNOWN;
+	m_formatter.reset(new LogFormatter("%d%T%t%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"));
 }
 
 const char* LogLevel::toString(LogLevel::Level level){
@@ -79,18 +97,29 @@ class FiberIdFormatItem : public LogFormatter::FormatItem{
 		}
 };
 
-class DateTimeFormatItem : public LogFormatter::FormatItem{
-	public:
+class DateTimeFormatItem : public LogFormatter::FormatItem {
+public:
+	DateTimeFormatItem(const std::string& format = "%Y-%m-%d %H:%M:%S") : m_format(format) {
 		
-		DateTimeFormatItem(const std::string& format = "%Y:%M:%D %H%M%S"){
-			m_format = format;
-		}
-		void format(std::ostream &os, Logger::ptr logger, LogLevel::Level level, LogEvent::ptr event) override{
-			os << event->getTime();
-		}
-
-	private:
-		std::string m_format;
+		m_format = "%Y-%m-%d %H:%M:%S";	//我不明白为什么这里会有问题
+		// if(m_format.size() == 0) std::cout << "format error"<<std::endl;
+		// else std::cout << m_format;
+		// std::cout << "building dateTimeitem" << std::endl;
+		// std::cout << format << std::endl;
+		// std::string m;
+		// std::cout << m << std::endl;
+		
+	}
+	void format(std::ostream &os, Logger::ptr logger, LogLevel::Level level, LogEvent::ptr event) override {
+		struct tm tm;
+		time_t raw_time = event->getTime();
+		localtime_r(&raw_time, &tm);
+		char buf[128]; // 确保这个大小足够容纳格式化后的字符串
+		strftime(buf, sizeof(buf), m_format.c_str(), &tm);
+		os << buf; // 将格式化后的字符串写入到os流
+	}
+private:
+	std::string m_format;
 };
 class FilenameFormatItem : public LogFormatter::FormatItem{
 	public:
@@ -114,6 +143,13 @@ class NewLineFormatItem : public LogFormatter::FormatItem{
 			os << std::endl;	
 		}
 };
+class TabFormatItem : public LogFormatter::FormatItem{
+	public:
+		TabFormatItem(const std::string& fmt=""){}
+		void format(std::ostream &os,  Logger::ptr logger, LogLevel::Level level,  LogEvent::ptr event) override{
+			os << "\t";	
+		}
+};
 class StringFormatItem : public LogFormatter::FormatItem{
 	
 	public:
@@ -127,8 +163,8 @@ class StringFormatItem : public LogFormatter::FormatItem{
 };
 
 
-LogEvent::LogEvent(const char* file, int32_t line, uint32_t elapse, uint32_t threadId, uint32_t FiberId,\
-		uint64_t _time, std::string content){
+LogEvent::LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level,const char* file, int32_t line, uint32_t elapse, uint32_t threadId, uint32_t FiberId,\
+		time_t _time, std::string content){
 
 			m_file = file;
 			m_line = line;
@@ -137,8 +173,23 @@ LogEvent::LogEvent(const char* file, int32_t line, uint32_t elapse, uint32_t thr
 			m_fiberId = FiberId;
 			m_time = _time;
 			m_ss << content;
+			m_logger = logger;
+			m_level = level;
 		}
-
+void LogEvent::format(const char* fmt, ...){
+	va_list al;
+	va_start(al, fmt);
+	format(fmt, al);
+	va_end(al);
+}
+void LogEvent::format(const char* fmt, va_list al){
+	char* buf = nullptr;
+	int len = vasprintf(&buf, fmt, al);
+	if(len != -1){
+		m_ss << std::string(buf, len);
+	}
+	free(buf);
+}
 
 void Logger::addAppender(LogAppender::ptr appender){
 	if(!appender->getFormatter()){
@@ -183,17 +234,31 @@ void Logger::fatal(LogEvent::ptr event){
 
 
 void FileLogAppender::reopen(){
-	if(m_filestream){
-		m_filestream.close();
+	// if(m_filestream){
+	// 	m_filestream.close();
+	// }
+	// m_filestream.open(m_filename);
+	 if (m_filestream) {
+        m_filestream.close();
+    }
+    m_filestream.open(m_filename);
+
+    // 检查文件是否成功打开
+    if (!m_filestream.is_open()) {
+        // 处理错误，例如记录错误日志或抛出异常
+        std::cerr << "Failed to open file: " << m_filename << std::endl;
+        // 可以选择抛出异常
+        throw std::runtime_error("Failed to open file: " + std::string(m_filename));
 	}
-	m_filestream.open(m_filename);
 
 }
 
-FileLogAppender::FileLogAppender(const std::string& filename):m_filename(filename){}
+FileLogAppender::FileLogAppender(const std::string& filename):m_filename(filename){m_filename =filename;}
 
 void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
+	reopen();
 	if(level >= m_level){
+		std::cout << "in filelogappender writting" << std::endl;
 		m_filestream << m_formatter->format(logger, level, event);
 	}
 }
@@ -201,7 +266,7 @@ void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level,
 void StdoutLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
 	if(level >= m_level){
 		std::string st = m_formatter->format(logger,level,event);
-		std::cout << st << "------" << std::endl;
+		std::cout << st << std::endl;
 	}
 }
 
@@ -308,10 +373,12 @@ void LogFormatter::init(){
 	//%d  时间
 	//%f  文件名称
 	//%l  行号
+	//%T  tab
+	//%F  fiberId
 	
 	static std::map<std::string, std::function<FormatItem::ptr(const std::string& str)> > s_format_items = {
 #define XX(str, C) \
-		{#str, [](const std::string& str){return FormatItem::ptr(new C(str));}}
+		{#str, [](const std::string& fmt){return FormatItem::ptr(new C(fmt));}}
 
 		XX(m, MessageFormatItem),
 		XX(p, LevelFormatItem),
@@ -321,7 +388,9 @@ void LogFormatter::init(){
 		XX(n, NewLineFormatItem),
 		XX(d, DateTimeFormatItem),	
 		XX(f, FilenameFormatItem),	
-		XX(l, LineFormatItem)
+		XX(l, LineFormatItem),
+		XX(T, TabFormatItem),
+		XX(F, FiberIdFormatItem)
 		//"%d [%p] %f %l %m %n"
 #undef XX
 	};
@@ -340,12 +409,27 @@ void LogFormatter::init(){
 			}
 		}
 
-		std::cout << std::get<0>(i) << " - " << std::get<1>(i) << " - " << std::get<2>(i) <<std::endl;
+		// std::cout << std::get<0>(i) << " - " << std::get<1>(i) << " - " << std::get<2>(i) <<std::endl;
 	
 	}
 }
 
-
+LoggerManager::LoggerManager(){
+	m_root.reset(new Logger);
+	m_root->addAppender(LogAppender::ptr(new sylar::StdoutLogAppender));
+}
+void LoggerManager::addLogger(Logger::ptr logger, std::string loggerName){
+	if(m_logger.find(loggerName) == m_logger.end()){
+		m_logger[loggerName] = logger;
+	}else{
+		std::cout << "logName: " << loggerName << "<EXIST>" << std::endl;
+	}
+	
+}
+Logger::ptr LoggerManager::getLogger(std::string loggerName){
+	auto it = m_logger.find(loggerName);
+	return (it == m_logger.end() )? m_root : m_logger[loggerName];
+}
 
 
 
