@@ -15,7 +15,6 @@ logEventWrap::~logEventWrap(){
 	}
 }
 std::stringstream& logEventWrap::getSS(){
-	std::cout << "here" << std::endl;
 	return m_event->getSS();
 }
 LogEvent::ptr logEventWrap::getEvent(){

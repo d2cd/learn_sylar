@@ -13,6 +13,7 @@
 #include<map>
 #include"singleton.h"
 #include<stdarg.h>
+#include"util.h"
 
 #define SYLAR_LOG_LEVEL(logger, level)\
 		if(logger->getLevel() < level)\
@@ -34,6 +35,7 @@
 #define SYLAR_LOG_FMT_ERROR(logger, fmt, ...) SYLAR_LOG_FMT_LEVEL(logger, sylar::LogLevel::Level::ERROR， fmt, __VA_ARGS__)
 #define SYLAR_LOG_FMT_FATAL(logger, fmt, ...) SYLAR_LOG_FMT_LEVEL(logger, sylar::LogLevel::Level::FATAL， fmt, __VA_ARGS__)
 
+#define SYLAR_LOG_ROOT() sylar::LoggerMgr::getInstance()->getRoot() //这里注意单例模式，static T* getinstance()的使用。
 namespace sylar{
 //日志级别
 class LogLevel{
@@ -181,6 +183,7 @@ public:
 LoggerManager();
 void addLogger(Logger::ptr logger, std::string loggerName);
 Logger::ptr getLogger(std::string logName);
+Logger::ptr getRoot(){return m_root;}
 
 private:
 Logger::ptr m_root;
@@ -191,7 +194,8 @@ std::map<std::string, Logger::ptr> m_logger;
 
 typedef sylar::Singleton<LoggerManager> LoggerMgr;
 
-#endif // __SYLAR_LOG_H__
+
 
 
 }
+#endif // __SYLAR_LOG_H__

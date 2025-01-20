@@ -114,6 +114,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named test_config
+
+# Build rule for target.
+test_config: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_config
+.PHONY : test_config
+
+# fast build rule for target.
+test_config/fast:
+	$(MAKE) -f CMakeFiles/test_config.dir/build.make CMakeFiles/test_config.dir/build
+.PHONY : test_config/fast
+
+#=============================================================================
 # Target rules for targets named test
 
 # Build rule for target.
@@ -138,6 +151,33 @@ sylar: cmake_check_build_system
 sylar/fast:
 	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/build
 .PHONY : sylar/fast
+
+sylar/config.o: sylar/config.cc.o
+
+.PHONY : sylar/config.o
+
+# target to build an object file
+sylar/config.cc.o:
+	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/sylar/config.cc.o
+.PHONY : sylar/config.cc.o
+
+sylar/config.i: sylar/config.cc.i
+
+.PHONY : sylar/config.i
+
+# target to preprocess a source file
+sylar/config.cc.i:
+	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/sylar/config.cc.i
+.PHONY : sylar/config.cc.i
+
+sylar/config.s: sylar/config.cc.s
+
+.PHONY : sylar/config.s
+
+# target to generate assembly for a file
+sylar/config.cc.s:
+	$(MAKE) -f CMakeFiles/sylar.dir/build.make CMakeFiles/sylar.dir/sylar/config.cc.s
+.PHONY : sylar/config.cc.s
 
 sylar/log.o: sylar/log.cc.o
 
@@ -193,6 +233,33 @@ sylar/tests/test.cc.s:
 	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/sylar/tests/test.cc.s
 .PHONY : sylar/tests/test.cc.s
 
+sylar/tests/test_config.o: sylar/tests/test_config.cc.o
+
+.PHONY : sylar/tests/test_config.o
+
+# target to build an object file
+sylar/tests/test_config.cc.o:
+	$(MAKE) -f CMakeFiles/test_config.dir/build.make CMakeFiles/test_config.dir/sylar/tests/test_config.cc.o
+.PHONY : sylar/tests/test_config.cc.o
+
+sylar/tests/test_config.i: sylar/tests/test_config.cc.i
+
+.PHONY : sylar/tests/test_config.i
+
+# target to preprocess a source file
+sylar/tests/test_config.cc.i:
+	$(MAKE) -f CMakeFiles/test_config.dir/build.make CMakeFiles/test_config.dir/sylar/tests/test_config.cc.i
+.PHONY : sylar/tests/test_config.cc.i
+
+sylar/tests/test_config.s: sylar/tests/test_config.cc.s
+
+.PHONY : sylar/tests/test_config.s
+
+# target to generate assembly for a file
+sylar/tests/test_config.cc.s:
+	$(MAKE) -f CMakeFiles/test_config.dir/build.make CMakeFiles/test_config.dir/sylar/tests/test_config.cc.s
+.PHONY : sylar/tests/test_config.cc.s
+
 sylar/util.o: sylar/util.cc.o
 
 .PHONY : sylar/util.o
@@ -227,15 +294,22 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
+	@echo "... test_config"
 	@echo "... edit_cache"
 	@echo "... test"
 	@echo "... sylar"
+	@echo "... sylar/config.o"
+	@echo "... sylar/config.i"
+	@echo "... sylar/config.s"
 	@echo "... sylar/log.o"
 	@echo "... sylar/log.i"
 	@echo "... sylar/log.s"
 	@echo "... sylar/tests/test.o"
 	@echo "... sylar/tests/test.i"
 	@echo "... sylar/tests/test.s"
+	@echo "... sylar/tests/test_config.o"
+	@echo "... sylar/tests/test_config.i"
+	@echo "... sylar/tests/test_config.s"
 	@echo "... sylar/util.o"
 	@echo "... sylar/util.i"
 	@echo "... sylar/util.s"

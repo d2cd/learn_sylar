@@ -6,6 +6,22 @@
 
 #IncludeRegexTransform: 
 
+/home/ffy/sylar/sylar/config.cc
+config.h
+/home/ffy/sylar/sylar/config.h
+
+/home/ffy/sylar/sylar/config.h
+sstream
+-
+memory
+-
+string
+-
+boost/lexical_cast.hpp
+-
+log.h
+/home/ffy/sylar/sylar/log.h
+
 /home/ffy/sylar/sylar/log.cc
 log.h
 /home/ffy/sylar/sylar/log.h
@@ -43,6 +59,8 @@ singleton.h
 /home/ffy/sylar/sylar/singleton.h
 stdarg.h
 -
+util.h
+/home/ffy/sylar/sylar/util.h
 
 /home/ffy/sylar/sylar/singleton.h
 
