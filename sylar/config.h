@@ -33,7 +33,43 @@ private:
     std::string m_description;
 };
 
+template<class F, class T>
+class LexicalCast{
+public:
+    T operator()(const F& v){
+        return boost::lexical_cast<T> (v);
+    }
+};
+
 template<class T>
+class LexicalCast<std::vector<T>, std::string> {
+public:
+    std::stringstream ss;
+    std::string operator()(std::vector<T> vec){
+        for(size_t i=0; i<vec.size(); i++){
+            ss << boost::lexical_cast<std::string>(vec[i]);
+        }
+        return ss.str();
+    }  
+};
+template<class T>
+class LexicalCast<std::string, std::vector<T>>{
+public:
+    std::vector<T> operator()(std::string v){
+        std::vector<T> ret;
+        YAML::Node node = YAML::Load(v);
+        for(size_t i=0; i<node.size(); i++){
+            std::stringstream ss;
+            ss.str("");
+            ss << node[i];
+            ret.push_back(boost::lexical_cast<T>(ss.str()));
+        }
+        return ret;
+    }
+    
+};
+
+template<class T, class FromStr = LexicalCast<std::string, T>, class ToStr = LexicalCast<T, std::string>>
 class ConfigVar:public ConfigVarBase{
 public:
     typedef std::shared_ptr<ConfigVar> ptr;
@@ -42,7 +78,8 @@ public:
     std::string to_string() override
     {
         try{
-            return boost::lexical_cast<std::string> (m_val);
+            // return boost::lexical_cast<std::string> (m_val);
+            return ToStr()(m_val);
         }catch(std::exception &e){
             SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "ConfigVar toString() exception:"
                 << e.what() << " convert: string to " ;//<< typeid(m_val).name();
@@ -52,7 +89,8 @@ public:
     bool from_string(const std::string& val) override
     {
         try{
-            m_val = boost::lexical_cast<T> (val);
+            // m_val = boost::lexical_cast<T> (val);
+            setValue(FromStr()(val));
             return true;
         }catch(std::exception &e){
             SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "ConfigVar fromString() exception:"

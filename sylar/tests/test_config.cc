@@ -3,6 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 sylar::ConfigVar<int>::ptr g_int_value_config = sylar::Config::Lookup<int>("system.port", (int)8080, "system port");
+sylar::ConfigVar<std::vector<int>>::ptr g_int_vec_value_config = sylar::Config::Lookup<std::vector<int>>("int_vec", std::vector<int>{1,2,4}, "int");
 
 
 void print_yaml(YAML::Node node, int level){
@@ -41,10 +42,17 @@ void test_yaml(){
 
 void test_config(){
     YAML::Node root=YAML::LoadFile("/home/ffy/sylar/bin/conf/log.yml");
-    SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << g_int_value_config->getValue();
+    SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "before " << g_int_value_config->getValue();
+    auto m = g_int_vec_value_config->getValue();
+    for(auto& i : m){
+        SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "before " << i; 
+    }
     sylar::Config::LoadFromYaml(root);
-    // SYLAR_LOG_INFO(SYLAR_LOG_ROOT())<<"---------";
-    SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << g_int_value_config->getValue();
+    SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after" << g_int_value_config->getValue();
+    m = g_int_vec_value_config->getValue();
+    for(auto& i : m){
+        SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "After " << i; 
+    }
     
     
 }

@@ -7,4 +7,10 @@ logs:
           - type: StdoutLogAppender
 system:
     port: 10000
+
+int_vec:
+    - 10
+    - 20
+    - 30
+    - 40
     
