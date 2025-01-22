@@ -189,6 +189,9 @@ sylar_LIB_DEPENDS:STATIC=
 //Value Computed by CMake
 sylar_SOURCE_DIR:STATIC=/home/ffy/sylar
 
+//The directory containing a CMake configuration file for yaml-cpp.
+yaml-cpp_DIR:PATH=/home/ffy/miniconda3/lib/cmake/yaml-cpp
+
 
 ########################
 # INTERNAL cache entries

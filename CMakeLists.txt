@@ -9,20 +9,25 @@ set(LIB_SRC
     sylar/util.cc
     sylar/config.cc
    )
-
 add_library(sylar SHARED ${LIB_SRC})
+
 include_directories(${CMAKE_SOURCE_DIR}/sylar)
+#include中包含yaml-cpp
+include_directories(/usr/local/include)
+
+find_package(yaml-cpp REQUIRED)
+
 
 add_executable(test sylar/tests/test.cc)
 #相对地址是相对于cmakelist文件所在的目录
 add_dependencies(test sylar)
-target_link_libraries(test sylar)
+target_link_libraries(test sylar yaml-cpp)
 
 
 add_executable(test_config sylar/tests/test_config.cc)
 #相对地址是相对于cmakelist文件所在的目录
 add_dependencies(test_config sylar)
-target_link_libraries(test_config sylar)
+target_link_libraries(test_config sylar yaml-cpp)
 
 SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

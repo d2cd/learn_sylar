@@ -3,6 +3,7 @@
 #include<string>
 #include<boost/lexical_cast.hpp>
 #include"log.h"
+#include<yaml-cpp/yaml.h>
 
 
 namespace sylar{
@@ -10,7 +11,10 @@ class ConfigVarBase{
 public:
     typedef std::shared_ptr<ConfigVarBase> ptr;
     ConfigVarBase(const std::string& name, const std::string& description=""):
-        m_name(name), m_description(description){}
+        m_name(name), m_description(description){
+            std::transform(m_name.begin(), m_name.end(), m_name.begin(), ::tolower); 
+            //这里需要思考下，为什么m_name重新transform一些，之前的formatter的pattern初始化也遇到这个问题
+        }
     
     virtual ~ConfigVarBase(){}; 
     //这里可以是
@@ -69,13 +73,13 @@ public:
     typedef std::map<std::string, ConfigVarBase::ptr> ConfigVarMap;
 
     template<class T>
-    static typename ConfigVar<T>::ptr lookup(const std::string& name, const T& default_value, const std::string& description=""){
-        auto tmp = lookup<T>(name);
+    static typename ConfigVar<T>::ptr Lookup(const std::string& name, const T& default_value, const std::string& description=""){
+        auto tmp = Lookup<T>(name);
         if(tmp){
             SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "lookup name=" << name << " exists";
             return tmp;
         }
-        if(name.find_first_not_of("abcdefghijklmnopqrstuvwxyz_.1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        if(name.find_first_not_of("abcdefghijklmnopqrstuvwxyz_.1234567890")
             != std::string::npos){
             SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "lookup name invalid: " << name;
             throw std::invalid_argument(name);
@@ -88,13 +92,17 @@ public:
     } 
 
     template<class T>
-    static typename ConfigVar<T>::ptr lookup(const std::string& name){
+    static typename ConfigVar<T>::ptr Lookup(const std::string& name){
         auto it = s_datas.find(name);
         if(it == s_datas.end()){
             return nullptr;
         }
         return std::dynamic_pointer_cast<ConfigVar<T>> (it->second);
     } 
+    static ConfigVarBase::ptr LookupBase(const std::string& name);
+
+
+    static void LoadFromYaml(const YAML::Node& node);
 private:
 static ConfigVarMap s_datas;
     

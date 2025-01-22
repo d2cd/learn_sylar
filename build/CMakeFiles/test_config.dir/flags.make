@@ -6,5 +6,5 @@ CXX_FLAGS =  -rdynamic -O0 -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-u
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/ffy/sylar/sylar 
+CXX_INCLUDES = -I/home/ffy/sylar/sylar -I/usr/local/include 
 

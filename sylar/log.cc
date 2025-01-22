@@ -257,7 +257,7 @@ FileLogAppender::FileLogAppender(const std::string& filename):m_filename(filenam
 void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
 	reopen();
 	if(level >= m_level){
-		std::cout << "in filelogappender writting" << std::endl;
+		// std::cout << "in filelogappender writting" << std::endl;
 		m_filestream << m_formatter->format(logger, level, event);
 	}
 }
@@ -265,7 +265,7 @@ void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level,
 void StdoutLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
 	if(level >= m_level){
 		std::string st = m_formatter->format(logger,level,event);
-		std::cout << st << std::endl;
+		std::cout << st;
 	}
 }
 

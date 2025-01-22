@@ -1,0 +1,10 @@
+logs:
+    - name: root
+      level: info
+      appender:
+          - type: FileLogAppender
+            path: log.txt
+          - type: StdoutLogAppender
+system:
+    port: 10000
+    
