@@ -25,6 +25,16 @@ log.h
 /home/ffy/sylar/sylar/log.h
 yaml-cpp/yaml.h
 -
+list
+-
+map
+-
+set
+-
+unordered_map
+-
+unordered_set
+-
 
 /home/ffy/sylar/sylar/log.cc
 log.h

@@ -8,9 +8,19 @@ logs:
 system:
     port: 10000
 
-int_vec:
-    - 10
-    - 20
-    - 30
-    - 40
-    
+    int_vec:
+        - 20
+        - 30
+        - 40
+
+    int_list: [11,22,34]
+    int_set: [-2,0,-1,-22]
+    int_uset: [-1,0,-1,-22]
+    str_int_map:
+        k: 10
+        k2: 20
+        k3: 30
+    str_int_umap:
+        uk: 10
+        uk1: 20
+        uk2: 30

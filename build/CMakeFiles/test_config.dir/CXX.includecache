@@ -19,6 +19,16 @@ log.h
 ../sylar/log.h
 yaml-cpp/yaml.h
 -
+list
+-
+map
+-
+set
+-
+unordered_map
+-
+unordered_set
+-
 
 ../sylar/log.h
 string
@@ -66,6 +76,8 @@ log.h
 config.h
 /home/ffy/sylar/sylar/tests/config.h
 yaml-cpp/yaml.h
+-
+iostream
 -
 
 /usr/local/include/yaml-cpp/binary.h
