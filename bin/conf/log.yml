@@ -24,3 +24,14 @@ system:
         uk: 10
         uk1: 20
         uk2: 30
+    person:
+        m_name: ldz
+        m_age: 21
+        m_sex: true
+    vec_person:
+        - m_name: v1
+          m_age: 12
+          m_sex: false
+        - m_name: v2
+          m_age: 13
+          m_sex: true

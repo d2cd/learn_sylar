@@ -11,6 +11,7 @@
 #include<unordered_map>
 #include<unordered_set>
 
+namespace sylar{    
 template<class F, class T>
 class LexicalCast{
 public:
@@ -25,7 +26,7 @@ public:
     std::stringstream ss;
     std::string operator()(std::vector<T> vec){
         for(size_t i=0; i<vec.size(); i++){
-            ss << boost::lexical_cast<std::string>(vec[i]);
+            ss << LexicalCast<T,std::string>()(vec[i]);
         }
         return ss.str();
     }  
@@ -41,7 +42,7 @@ public:
         for(size_t i=0; i<node.size(); i++){
             ss.str("");
             ss << node[i];
-            ret.push_back(boost::lexical_cast<T>(ss.str()));
+            ret.push_back(LexicalCast<std::string, T>()(ss.str()));
         }
         return ret;
     }
@@ -56,7 +57,7 @@ public:
         ss.str("");
         for(auto& v : lis)
         {
-            ss << boost::lexical_cast<std::string>(v);
+            ss << LexicalCast<T, std::string>()(v);
         }
         return ss.str();
     }  
@@ -71,7 +72,7 @@ public:
         for(size_t i=0; i<node.size(); i++){
             ss.str("");
             ss << node[i];
-            ret.push_back(boost::lexical_cast<T>(ss.str()));
+            ret.push_back(LexicalCast<std::string, T>()(ss.str()));
         }
         return ret;
     }
@@ -85,7 +86,7 @@ public:
         ss.str("");
         for(auto& v : st)
         {
-            ss << boost::lexical_cast<std::string>(v);
+            ss << LexicalCast<T, std::string>()(v);
         }
         return ss.str();
     }  
@@ -100,7 +101,7 @@ public:
             std::stringstream ss;
             ss.str("");
             ss << node[i];
-            ret.insert(boost::lexical_cast<T>(ss.str()));
+            ret.insert(LexicalCast<std::string, T>()(ss.str()));
         }
         return ret;
     }
@@ -115,11 +116,12 @@ public:
         ss.str("");
         for(auto& v : st)
         {
-            ss << boost::lexical_cast<std::string>(v);
+            ss << LexicalCast<T, std::string>()(v);
         }
         return ss.str();
     }  
 };
+
 template<class T>
 class LexicalCast<std::string, std::unordered_set<T>>{
 public:
@@ -130,7 +132,7 @@ public:
         for(size_t i=0; i<node.size(); i++){
             ss.str("");
             ss << node[i];
-            ret.insert(boost::lexical_cast<T>(ss.str()));
+            ret.insert(LexicalCast<std::string,T>()(ss.str()));
         }
         return ret;
     }
@@ -144,13 +146,14 @@ public:
         YAML::Node node;
         for(auto& v : st)
         {
-            node[v.first] = boost::lexical_cast<std::string>(v.second);
+            node[v.first] = LexicalCast<T, std::string>()(v.second);
         }
         ss.str("");
         ss << node;
         return ss.str();
     }  
 };
+
 template<class T>
 class LexicalCast<std::string, std::map<std::string, T>>{
 public:
@@ -162,7 +165,7 @@ public:
         for(auto it = node.begin(); it!=node.end(); it++){
             ss.str("");
             ss << it->second;
-            ret.insert(std::make_pair(it->first.Scalar(), boost::lexical_cast<T>(ss.str())));
+            ret.insert(std::make_pair(it->first.Scalar(), LexicalCast<std::string,T>()(ss.str())));
         }
         return ret;
     }
@@ -177,7 +180,7 @@ public:
         YAML::Node node;
         for(auto& v : st)
         {
-            node[v.first] = boost::lexical_cast<std::string>(v.second);
+            node[v.first] = LexicalCast<T, std::string>()(v.second);
         }
         ss.str("");
         ss << node;
@@ -195,7 +198,7 @@ public:
         for(auto it = node.begin(); it!=node.end(); it++){
             ss.str("");
             ss << it->second;
-            ret.insert(std::make_pair(it->first.Scalar(), boost::lexical_cast<T>(ss.str())));
+            ret.insert(std::make_pair(it->first.Scalar(), LexicalCast<std::string, T>()(ss.str())));
         }
         return ret;
     }
@@ -208,7 +211,7 @@ public:
 
 
 
-namespace sylar{
+
 class ConfigVarBase{
 public:
     typedef std::shared_ptr<ConfigVarBase> ptr;
@@ -260,7 +263,7 @@ public:
             setValue(FromStr()(val));
             return true;
         }catch(std::exception &e){
-            SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "ConfigVar fromString() exception:"
+            SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "ConfigVar from_string() exception:"
                 << e.what() << " convert: " << typeid(val).name() << " --->  to string: " << val;
         }
         return false;
@@ -279,11 +282,23 @@ public:
 
     template<class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string& name, const T& default_value, const std::string& description=""){
-        auto tmp = Lookup<T>(name);
-        if(tmp){
-            SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "lookup name=" << name << " exists";
-            return tmp;
+        // auto tmp = Lookup<T>(name);
+        // if(tmp){
+        //     SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "lookup name=" << name << " exists";
+        //     return tmp;
+        // }
+        auto t = s_datas.find(name);
+        if(t != s_datas.end()){
+            auto tmp = std::dynamic_pointer_cast<ConfigVar<T>> ((*t).second); //或者t->second
+            if(tmp){
+                SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "Lookup name:" << name << " exist";
+                return tmp;
+            }else{
+                SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "Lookup name:" << name << " exist but not type " << typeid(T).name();
+                return nullptr;
+            }
         }
+
         if(name.find_first_not_of("abcdefghijklmnopqrstuvwxyz_.1234567890")
             != std::string::npos){
             SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "lookup name invalid: " << name;
