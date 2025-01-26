@@ -9,3 +9,4 @@ git push origin master
 
 if [ $? -eq 0 ]; then
 	echo "git上传成功"
+fi

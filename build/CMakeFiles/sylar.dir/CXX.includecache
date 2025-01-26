@@ -21,6 +21,8 @@ string
 -
 boost/lexical_cast.hpp
 -
+functional
+-
 log.h
 /home/ffy/sylar/sylar/log.h
 yaml-cpp/yaml.h
