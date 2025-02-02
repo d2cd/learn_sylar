@@ -1,37 +1,48 @@
 logs:
     - name: root
-      level: info
+      level: WARN
+      formatter: '%d%T%p%T%t%m%n'
       appender:
           - type: FileLogAppender
-            path: log.txt
+            file: root.txt
           - type: StdoutLogAppender
-system:
-    port: 10000
+    - name: system
+      level: DEBUG
+      formatter: '%d%T%m%n'
+      appender:
+          - type: FileLogAppender
+            file: system.txt
+            formatter: '%d%T[%p]%m%n'
+          - type: StdoutLogAppender
+    
+      
+# system:
+#     port: 10000
 
-    int_vec:
-        - 20
-        - 30
-        - 40
+#     int_vec:
+#         - 20
+#         - 30
+#         - 40
 
-    int_list: [11,22,34]
-    int_set: [-2,0,-1,-22]
-    int_uset: [-1,0,-1,-22]
-    str_int_map:
-        k: 10
-        k2: 20
-        k3: 30
-    str_int_umap:
-        uk: 10
-        uk1: 20
-        uk2: 30
-    person:
-        m_name: ldz
-        m_age: 21
-        m_sex: true
-    vec_person:
-        - m_name: v1
-          m_age: 12
-          m_sex: false
-        - m_name: v2
-          m_age: 13
-          m_sex: true
+#     int_list: [11,22,34]
+#     int_set: [-2,0,-1,-22]
+#     int_uset: [-1,0,-1,-22]
+#     str_int_map:
+#         k: 10
+#         k2: 20
+#         k3: 30
+#     str_int_umap:
+#         uk: 10
+#         uk1: 20
+#         uk2: 30
+#     person:
+#         m_name: ldz
+#         m_age: 21
+#         m_sex: true
+#     vec_person:
+#         - m_name: v1
+#           m_age: 12
+#           m_sex: false
+#         - m_name: v2
+#           m_age: 13
+#           m_sex: true

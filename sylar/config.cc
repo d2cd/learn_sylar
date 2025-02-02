@@ -3,12 +3,12 @@
 namespace sylar{
     //不能重复声明static
     ConfigVarBase::ptr Config::LookupBase(const std::string& name){
-        if(s_datas.find(name) == s_datas.end()){
+        if(GetDatas().find(name) == GetDatas().end()){
             return nullptr;
         }
-        return s_datas[name];
+        return GetDatas()[name];
     }
-    Config::ConfigVarMap Config::s_datas;
+    // auto& _ = Config::GetDatas();
     //具体来说，静态成员函数只能调用其他静态成员函数和非成员函数
     static void listAllMember(const std::string& prefix, const YAML::Node& node, std::list<std::pair<std::string, const YAML::Node> >& all_nodes){
         if(prefix.find_first_not_of("abcdefghijklmnopqrstuvwxyz_.1234567890")!=std::string::npos){
@@ -42,7 +42,7 @@ namespace sylar{
                     var->from_string(t.second.Scalar());
                 }else{
                     std::stringstream ss;
-                    ss << t.second; //转化为数据流，这个是YAML::Node定义过的
+                    ss << t.second; //转化为数据流，这个是YAML::Node定义过的. t.second 是 YAML::Node类型
                     var->from_string(ss.str());
                 }
             }

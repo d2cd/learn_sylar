@@ -2,8 +2,10 @@
 #include<memory>
 #include<string>
 #include<boost/lexical_cast.hpp>
+#include<functional>
 #include"log.h"
 #include<yaml-cpp/yaml.h>
+
 
 #include<list>
 #include<map>
@@ -11,7 +13,11 @@
 #include<unordered_map>
 #include<unordered_set>
 
-namespace sylar{    
+#include<iostream>
+
+namespace sylar{  
+
+  
 template<class F, class T>
 class LexicalCast{
 public:
@@ -91,6 +97,8 @@ public:
         return ss.str();
     }  
 };
+
+
 template<class T>
 class LexicalCast<std::string, std::set<T>>{
 public:
@@ -242,6 +250,7 @@ private:
 template<class T, class FromStr = LexicalCast<std::string, T>, class ToStr = LexicalCast<T, std::string>>
 class ConfigVar:public ConfigVarBase{
 public:
+    typedef std::function<void (const T& old_value, const T& new_value)> on_change_cb;
     typedef std::shared_ptr<ConfigVar> ptr;
     ConfigVar(const std::string& name, const T& default_value, const std::string& description=""):
         ConfigVarBase(name, description), m_val(default_value){}
@@ -269,9 +278,36 @@ public:
         return false;
     }
     const T getValue()const {return m_val;}
-    void setValue(const T& val){m_val = val;}
+    void setValue(const T& val){
+        if(m_val == val){
+            return;
+        }
+        for(auto& i : m_map){
+            i.second(m_val, val);
+        }
+        m_val = val;
+    }
+    //Listener负责监听外部指令
+    void addListener(uint64_t key, const on_change_cb& cb){
+        std::cout << "------------------in addlistener!!--------------------" << std::endl;
+        m_map[key] = cb;
+    }
+    void delListener(uint64_t key){
+        m_map.erase(key);
+    }
+    on_change_cb getListener(uint64_t key){
+        auto it = m_map.find(key);
+        return it == m_map.end() ? nullptr : it->second;
+    }
+    void clearListeners(){
+        m_map.clear();
+    }
+
 private:
     T m_val;
+    //因为functional没有比较函数，我们没法比较两个functional是否一样
+    std::map<uint64_t, on_change_cb> m_map;
+    
 };
 
 class Config{
@@ -287,8 +323,8 @@ public:
         //     SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "lookup name=" << name << " exists";
         //     return tmp;
         // }
-        auto t = s_datas.find(name);
-        if(t != s_datas.end()){
+        auto t = GetDatas().find(name);
+        if(t != GetDatas().end()){
             auto tmp = std::dynamic_pointer_cast<ConfigVar<T>> ((*t).second); //或者t->second
             if(tmp){
                 SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "Lookup name:" << name << " exist";
@@ -306,15 +342,15 @@ public:
         }
         auto m = typename ConfigVar<T>::ptr(new ConfigVar<T>(name, default_value, description));
         // typename ConfigVar<T>::ptr v(new ConfigVar<T>(name, default_value, description));
-        s_datas[name] = m;
+        GetDatas()[name] = m;
         SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "Add new ConfigVar::ptr for " << name;
         return m;
     } 
 
     template<class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string& name){
-        auto it = s_datas.find(name);
-        if(it == s_datas.end()){
+        auto it = GetDatas().find(name);
+        if(it == GetDatas().end()){
             return nullptr;
         }
         return std::dynamic_pointer_cast<ConfigVar<T>> (it->second);
@@ -324,8 +360,11 @@ public:
 
     static void LoadFromYaml(const YAML::Node& node);
 private:
-static ConfigVarMap s_datas;
-    
+//使用静态函数包含静态类原因：静态成员初始化的顺序难以确定，这样可以保证调用lookup, s_datas已经初始化
+static ConfigVarMap& GetDatas(){
+    static ConfigVarMap s_datas;
+    return s_datas;
+}
 };
 
 

@@ -37,6 +37,8 @@ unordered_map
 -
 unordered_set
 -
+iostream
+-
 
 /home/ffy/sylar/sylar/log.cc
 log.h
@@ -51,6 +53,8 @@ functional
 -
 iostream
 -
+config.h
+/home/ffy/sylar/sylar/config.h
 
 /home/ffy/sylar/sylar/log.h
 string

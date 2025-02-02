@@ -44,111 +44,113 @@ void print_yaml(YAML::Node node, int level){
             print_yaml(node[i], level+1);
         }
     }
-    
 }
 
 void test_yaml(){
     YAML::Node root=YAML::LoadFile("/home/ffy/sylar/bin/conf/log.yml");
     // SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << root; //这样好像也行
-    SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << root.Scalar();
+    // SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << root.Scalar();
     print_yaml(root, 0);
 }
 
-//自定义类型
-class Person{
-public:
-    Person() : m_name("ffy"), m_age(20), m_sex(false){};
-    std::string to_string() const{
-        std::stringstream ss;
-        ss << "Person name=" << m_name
-           <<" age=" << m_age
-           << " sex=" << m_sex;
-        return ss.str();
-    }
-    bool operator==(const Person& e){
-        return e.m_name == m_name && 
-                e.m_age == m_age  &&
-                e.m_sex == m_sex;
-    }
-    void set_name(const std::string& name){
-        m_name = name;
-    }
-    void set_age(const int& age){
-        m_age = age;
-    }
-    void set_sex(const bool& sex){
-        m_sex = sex;
-    }
-    const std::string& getName() const {return m_name;}
-    const int getAge() const {return m_age;}
-    const bool getSex() const {return m_sex;}
+// //自定义类型
+// class Person{
+// public:
+//     Person() : m_name("ffy"), m_age(20), m_sex(false){};
+//     std::string to_string() const{
+//         std::stringstream ss;
+//         ss << "Person name=" << m_name
+//            <<" age=" << m_age
+//            << " sex=" << m_sex;
+//         return ss.str();
+//     }
+//     bool operator==(const Person& e) const{
+//         return e.m_name == m_name && 
+//                 e.m_age == m_age  &&
+//                 e.m_sex == m_sex;
+//     }
+//     void set_name(const std::string& name){
+//         m_name = name;
+//     }
+//     void set_age(const int& age){
+//         m_age = age;
+//     }
+//     void set_sex(const bool& sex){
+//         m_sex = sex;
+//     }
+//     const std::string& getName() const {return m_name;}
+//     const int getAge() const {return m_age;}
+//     const bool getSex() const {return m_sex;}
     
-private:
-    std::string m_name;
-    int m_age;
-    bool m_sex;
-};
+// private:
+//     std::string m_name;
+//     int m_age;
+//     bool m_sex;
+// };
 
-namespace sylar{
-template<>
-class LexicalCast<Person, std::string> {
-public:
-    std::string operator()(Person vec){
-        YAML::Node node;
-        node["m_name"] = vec.getName();
-        node["m_age"] = vec.getAge();
-        node["m_sex"] = vec.getSex();
-        std::stringstream ss;
-        ss << node << std::endl;
-        return ss.str();
-    }  
-};
+// namespace sylar{
+// template<>
+// class LexicalCast<Person, std::string> {
+// public:
+//     std::string operator()(Person vec){
+//         YAML::Node node;
+//         node["m_name"] = vec.getName();
+//         node["m_age"] = vec.getAge();
+//         node["m_sex"] = vec.getSex();
+//         std::stringstream ss;
+//         ss << node << std::endl;
+//         return ss.str();
+//     }  
+// };
 
-template<>
-class LexicalCast<std::string, Person>{
-public:
-    Person operator()(std::string v){
-        Person ret; 
-        YAML::Node node = YAML::Load(v);
+// template<>
+// class LexicalCast<std::string, Person>{
+// public:
+//     Person operator()(std::string v){
+//         Person ret; 
+//         YAML::Node node = YAML::Load(v);
 
-        std::stringstream ss;
-        ss << node;
-        ret.set_name(node["m_name"].as<std::string>());
-        ret.set_age(node["m_age"].as<int>());
-        ret.set_sex(node["m_sex"].as<bool>());
-        return ret;
-    }
-};
+//         std::stringstream ss;
+//         ss << node;
+//         ret.set_name(node["m_name"].as<std::string>());
+//         ret.set_age(node["m_age"].as<int>());
+//         ret.set_sex(node["m_sex"].as<bool>());
+//         return ret;
+//     }
+// };
 
-}
-
-
-
-void test_class(){
-sylar::ConfigVar<Person>::ptr g_person_value_config = sylar::Config::Lookup<Person>("system.person", Person(), "Class_Person");
-sylar::ConfigVar<std::vector<Person>>::ptr g_person_vec_value_config = sylar::Config::Lookup<std::vector<Person>>("system.vec_person", std::vector<Person>{Person(),Person()}, "Class_Person");
-
-SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<"before:  person " <<g_person_value_config->getValue().to_string();
-SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<"before yaml:  person " << g_person_value_config->to_string();
-{
-    auto& m = g_person_vec_value_config->getValue();
-    for(auto& i : m){
-        SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "before: vecperson "<< "" << i.to_string(); 
-    }
-}
-SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<"before yaml:  vecperson " << g_person_vec_value_config->to_string();
+// }
 
 
-YAML::Node root=YAML::LoadFile("/home/ffy/sylar/bin/conf/log.yml");
-sylar::Config::LoadFromYaml(root);
-SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after:  person "<<g_person_value_config->getValue().to_string();  
-{
-    auto& m = g_person_vec_value_config->getValue();
-    for(auto& i : m){
-        SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after: vecperson " << i.to_string(); 
-    }
-} 
-}
+
+// void test_class(){
+// sylar::ConfigVar<Person>::ptr g_person_value_config = sylar::Config::Lookup<Person>("system.person", Person(), "Class_Person");
+// sylar::ConfigVar<std::vector<Person>>::ptr g_person_vec_value_config = sylar::Config::Lookup<std::vector<Person>>("system.vec_person", std::vector<Person>{Person(),Person()}, "Class_Person");
+
+// g_person_value_config->addListener(10, [](const Person& old_val, const Person& new_val){
+//     SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "old_val:" << old_val.to_string() << "new_val:" << new_val.to_string();
+// });
+// SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<"before:  person " <<g_person_value_config->getValue().to_string();
+// SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<"before yaml:  person " << g_person_value_config->to_string();
+// {
+//     auto& m = g_person_vec_value_config->getValue();
+//     for(auto& i : m){
+//         SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "before: vecperson "<< "" << i.to_string(); 
+//     }
+// }
+// SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<"before yaml:  vecperson " << g_person_vec_value_config->to_string();
+
+
+// YAML::Node root=YAML::LoadFile("/home/ffy/sylar/bin/conf/log.yml");
+// sylar::Config::LoadFromYaml(root);
+// SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after:  person "<<g_person_value_config->getValue().to_string();  
+// {
+//     auto& m = g_person_vec_value_config->getValue();
+//     for(auto& i : m){
+//         SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after: vecperson " << i.to_string(); 
+//     }
+// } 
+// }
 
 // sylar::ConfigVar<int>::ptr g_int_value_config = sylar::Config::Lookup<int>("system.port", (int)8080, "system port");
 // sylar::ConfigVar<std::vector<int>>::ptr g_int_vec_value_config = sylar::Config::Lookup<std::vector<int>>("system.int_vec", std::vector<int>{1,2,4}, "int_vec");
@@ -184,11 +186,34 @@ SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after:  person "<<g_person_value_config->ge
 //     XX_M(g_str_int_map_value_config, "str_int_map", "after");
 //     XX_M(g_str_int_umap_value_config, "str_int_umap", "after"); 
     
-// }
+// }    
+void test_config_log(){
+    // sylar::ConfigVar<std::set<sylar::LogDefine>>::ptr g_logdefine_config = sylar::Config::Lookup<std::set<sylar::LogDefine>>("logs", std::set<sylar::LogDefine>(), "set_loggers");
+
+    //检查日志系统和配置的整合.
+    // SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << sylar::Config::Lookup<std::set<sylar::LogDefine>>()
+    // std::cout << "niubi" << std::endl;
+    std::cout << sylar::LoggerMgr::getInstance()->toYamlString() << std::endl;
+
+    YAML::Node root = YAML::LoadFile("/home/ffy/sylar/bin/conf/log.yml");
+    
+    sylar::Config::LoadFromYaml(root);
+
+    std::cout << "======================" << std::endl;
+
+    std::cout << sylar::LoggerMgr::getInstance()->toYamlString() << std::endl;
+
+    SYLAR_LOG_WARN(SYLAR_LOG_NAME("system")) << "hello";  
+    SYLAR_LOG_WARN(SYLAR_LOG_NAME("root")) << " hello";
+
+
+
+}
 int main(){
 
     // test_yaml();
     // test_config();
-    test_class();
+    // test_class();
+    test_config_log();
     return 0;
 }
