@@ -52,6 +52,9 @@ void Logger::setFormatter(const std::string& val){
 	auto new_formatter = LogFormatter::ptr(new LogFormatter(val));
 	if(!new_formatter->isError()){
 		m_formatter = new_formatter;
+		for(auto& ap : m_appenders){
+			ap->setFormatter(new_formatter);
+		}
 	}
 	else{
 		std::cout << "Logger set Formatter Error. name:" << m_name
@@ -298,7 +301,7 @@ void FileLogAppender::reopen(){
 	 if (m_filestream) {
         m_filestream.close();
     }
-    m_filestream.open(m_filename);
+    m_filestream.open(m_filename, std::ios::app);
 
     // 检查文件是否成功打开
     if (!m_filestream.is_open()) {
@@ -315,6 +318,8 @@ std::string FileLogAppender::toYamlString(){
 	YAML::Node node;
 	node["type"] = "FileLogAppender";
 	node["file"] = m_filename;
+	node["formatter"] = m_formatter->getPattern();
+	node["level"] = LogLevel::toString(m_level);
 	std::stringstream ss;
 	ss << node;
 	return ss.str();
@@ -616,6 +621,7 @@ public:
 								continue;
 							}
 							ad.file = a["file"].as<std::string>();
+
 						}else if(type_str == "StdoutLogAppender"){
 							ad.type = 2;
 						}else{
@@ -646,7 +652,6 @@ sylar::ConfigVar<std::set<LogDefine>>::ptr g_log_defines =
 struct LogIniter{
 	LogIniter()
 	{//为什么这里没有执行呢
-		std::cout << "hello in LogIniter!!!" << std::endl;
 		g_log_defines->addListener(0xF1E231, [](const std::set<LogDefine>& old_val, 
 								const std::set<LogDefine>& new_val)
 								{
@@ -679,14 +684,23 @@ struct LogIniter{
 											LogAppender::ptr ap;
 											if(t.type == 1){
 												ap.reset(new FileLogAppender(t.file));
-												ap->setLevel(t.level);
-												new_logger->addAppender(ap);
 											}else if(t.type == 2){
 												ap.reset(new StdoutLogAppender);
-												ap->setLevel(t.level);
-												new_logger->addAppender(ap);
 											}
-			
+											ap->setLevel(t.level);
+											if(!t.formatter.empty())
+											{
+												LogFormatter::ptr fmt(new LogFormatter(t.formatter));
+												if(!fmt->isError()){
+													ap->setFormatter(fmt);
+												}else{
+													std::cout << "yaml log name: "<< i.name << "formatter: "
+															  << t.formatter << " Error" << std::endl;
+												}
+
+											}
+
+											new_logger->addAppender(ap);
 										}
 									
 										//删除 老的有 新的没有

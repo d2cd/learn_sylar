@@ -6,13 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/ffy/sylar/sylar/config.cc
-config.h
-/home/ffy/sylar/sylar/config.h
-list
--
-
-/home/ffy/sylar/sylar/config.h
+../sylar/config.h
 sstream
 -
 memory
@@ -24,7 +18,7 @@ boost/lexical_cast.hpp
 functional
 -
 log.h
-/home/ffy/sylar/sylar/log.h
+../sylar/log.h
 yaml-cpp/yaml.h
 -
 list
@@ -40,23 +34,7 @@ unordered_set
 iostream
 -
 
-/home/ffy/sylar/sylar/log.cc
-log.h
-/home/ffy/sylar/sylar/log.h
-stdint.h
--
-ctime
--
-map
--
-functional
--
-iostream
--
-config.h
-/home/ffy/sylar/sylar/config.h
-
-/home/ffy/sylar/sylar/log.h
+../sylar/log.h
 string
 -
 memory
@@ -76,25 +54,15 @@ tuple
 map
 -
 singleton.h
-/home/ffy/sylar/sylar/singleton.h
+../sylar/singleton.h
 stdarg.h
 -
 util.h
-/home/ffy/sylar/sylar/util.h
+../sylar/util.h
 
-/home/ffy/sylar/sylar/singleton.h
+../sylar/singleton.h
 
-/home/ffy/sylar/sylar/thread.cc
-thread.h
-/home/ffy/sylar/sylar/thread.h
-log.h
-/home/ffy/sylar/sylar/log.h
-config.h
-/home/ffy/sylar/sylar/config.h
-util.h
-/home/ffy/sylar/sylar/util.h
-
-/home/ffy/sylar/sylar/thread.h
+../sylar/thread.h
 thread
 -
 functional
@@ -104,11 +72,7 @@ memory
 string
 -
 
-/home/ffy/sylar/sylar/util.cc
-util.h
-/home/ffy/sylar/sylar/util.h
-
-/home/ffy/sylar/sylar/util.h
+../sylar/util.h
 pthread.h
 -
 sys/types.h
@@ -118,6 +82,18 @@ sys/syscall.h
 unistd.h
 -
 stdint.h
+-
+
+/home/ffy/sylar/sylar/tests/test_thread.cc
+log.h
+/home/ffy/sylar/sylar/tests/log.h
+config.h
+/home/ffy/sylar/sylar/tests/config.h
+util.h
+/home/ffy/sylar/sylar/tests/util.h
+thread.h
+/home/ffy/sylar/sylar/tests/thread.h
+vector
 -
 
 /usr/local/include/yaml-cpp/binary.h

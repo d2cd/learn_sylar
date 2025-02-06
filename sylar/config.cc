@@ -25,6 +25,7 @@ namespace sylar{
 
     void Config::LoadFromYaml(const YAML::Node& node)
     {
+        //从Yaml文件中添加配置
         std::list<std::pair<std::string, const YAML::Node> > all_nodes;
         listAllMember("", node, all_nodes);
         
@@ -39,6 +40,7 @@ namespace sylar{
             ConfigVarBase::ptr var = Config::LookupBase(key);
             if(var){
                 if(t.second.IsScalar()){
+                    //从字符串构建不同的数据类型
                     var->from_string(t.second.Scalar());
                 }else{
                     std::stringstream ss;

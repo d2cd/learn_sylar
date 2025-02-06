@@ -204,7 +204,12 @@ void test_config_log(){
     std::cout << sylar::LoggerMgr::getInstance()->toYamlString() << std::endl;
 
     SYLAR_LOG_WARN(SYLAR_LOG_NAME("system")) << "hello";  
-    SYLAR_LOG_WARN(SYLAR_LOG_NAME("root")) << " hello";
+    auto root_logger = SYLAR_LOG_NAME("root");
+    SYLAR_LOG_WARN(root_logger) << " hello";
+    //但是这样的formater更改并没没有写入配置中。而且会改变所有appender的formatter
+    root_logger->setFormatter("%d - %p");
+    SYLAR_LOG_WARN(root_logger) << " hello";
+
 
 
 

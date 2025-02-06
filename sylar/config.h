@@ -269,6 +269,7 @@ public:
     {
         try{
             // m_val = boost::lexical_cast<T> (val);
+            //setvalue的同时也要更新logger管理
             setValue(FromStr()(val));
             return true;
         }catch(std::exception &e){
@@ -289,7 +290,6 @@ public:
     }
     //Listener负责监听外部指令
     void addListener(uint64_t key, const on_change_cb& cb){
-        std::cout << "------------------in addlistener!!--------------------" << std::endl;
         m_map[key] = cb;
     }
     void delListener(uint64_t key){

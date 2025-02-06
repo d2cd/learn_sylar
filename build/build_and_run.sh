@@ -12,7 +12,8 @@ cmake --build .
 if [ $? -eq 0 ]; then
 	echo "build succeeded."
 	# ../bin/test
-   ../bin/test_config
+   # ../bin/test_config
+   ../bin/test_thread
 else
 	echo "build failed."
 	exit 1
