@@ -71,6 +71,10 @@ memory
 -
 string
 -
+pthread.h
+-
+semaphore.h
+-
 
 ../sylar/util.h
 pthread.h
@@ -93,6 +97,8 @@ util.h
 /home/ffy/sylar/sylar/tests/util.h
 thread.h
 /home/ffy/sylar/sylar/tests/thread.h
+mutex
+-
 vector
 -
 

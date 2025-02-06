@@ -103,6 +103,10 @@ memory
 -
 string
 -
+pthread.h
+-
+semaphore.h
+-
 
 /home/ffy/sylar/sylar/util.cc
 util.h
